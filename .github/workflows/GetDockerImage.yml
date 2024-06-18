@@ -13,14 +13,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-    - name: Show disk space before
-      run: |
-        echo "Before freeing up disk space"
-        echo "=============================================================================="
-        df -hT
-        echo "=============================================================================="
-        
+    steps:        
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
       with:
@@ -33,14 +26,7 @@ jobs:
         build-mount-path: '/var/lib/docker/'
         
     - name: Restart docker
-      run: sudo service docker restart
-
-    - name: Show disk space after
-      run: |
-        echo "Free up disk space complete"
-        echo "=============================================================================="
-        df -hT
-        echo "=============================================================================="        
+      run: sudo service docker restart     
 
     - name: Login Aliyun
       run: |
@@ -50,22 +36,4 @@ jobs:
       run: |
         for image in $IMAGE_LIST; do
           echo "image item: "$image
-          IFS='/' read -r name_space name_tag <<< "$image"
-          echo "namespace: "$name_space
-          echo "name_tag: "$name_tag
-          IFS=':' read -r image_name image_tag <<< "$name_tag"
-          echo "image_name: "$image_name
-          echo "image_tag: "$image_tag
-          old_image_tag="$name_space/$image_name:$image_tag"
-          echo "old_image_tag: "$old_image_tag
-          new_image_tag="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$image_name:$image_tag"
-          echo "new_image_tag: "$new_image_tag
-          echo "docker pull "$old_image_tag
-          docker pull $image
-          echo "pull old image finish"
-          docker tag $old_image_tag $new_image_tag
-          echo "tag image finish"
-          docker push $new_image_tag
-          echo "push new image finish"
-          docker rmi $old_image_tag $new_image_tag        
         done
