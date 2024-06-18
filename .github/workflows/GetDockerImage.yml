@@ -34,6 +34,7 @@ jobs:
 
     - name: Pull and push images
       run: |
-        for image in $IMAGE_LIST; do
-          echo "image item: "$image
-        done
+        for IMAGE in $IMAGE_LIST; do
+          echo "image item: "$IMAGE
+          docker pull "$IMAGE"
+        done 
