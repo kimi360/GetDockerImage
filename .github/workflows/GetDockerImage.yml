@@ -36,5 +36,5 @@ jobs:
       run: |
         for IMAGE in $IMAGE_LIST; do
           echo "image item: "$IMAGE
-          docker pull "$IMAGE"
+          docker pull ${{IMAGE}}
         done 
