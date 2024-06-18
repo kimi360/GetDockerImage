@@ -35,6 +35,7 @@ jobs:
     - name: Pull and push images
       run: |
         echo "$IMAGE_LIST" | while IFS= read -r IMAGE; do
+          IMAGE=$(echo "$IMAGE" | tr -d '\r' | xargs)
           echo "image item: $IMAGE"
           docker pull "$IMAGE"
         done 
