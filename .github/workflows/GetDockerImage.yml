@@ -48,6 +48,7 @@ jobs:
 
     - name: Pull and push images
       run: |
+        echo $IMAGE_LIST
         for image in $IMAGE_LIST; do
           IFS=':' read -r image_name image_tag <<< "$image"
           old_image_tag="$image_name:$image_tag"
