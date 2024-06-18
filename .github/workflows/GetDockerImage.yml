@@ -8,7 +8,7 @@ env:
   ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
   ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
-  IMAGE_LIST: "${{IMAGE_LIST}}"
+  IMAGE_LIST: "${{env.IMAGE_LIST}}"
 
 jobs:
   build:
