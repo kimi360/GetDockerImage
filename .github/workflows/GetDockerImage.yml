@@ -57,7 +57,9 @@ jobs:
           echo "image_name: "$image_name
           echo "image_tag: "$image_tag
           old_image_tag="$name_space/$image_name:$image_tag"
+          echo "old_image_tag: "$old_image_tag
           new_image_tag="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$image_name:$image_tag"
+          echo "new_image_tag: "$new_image_tag
           docker pull $old_image_tag
           docker tag $old_image_tag $new_image_tag
           docker push $new_image_tag
