@@ -36,14 +36,15 @@ jobs:
       run: |
         for IMAGE in $IMAGE_LIST; do
           IMAGE=$(echo "$IMAGE" | tr -d '\r' | xargs)
-          IFS='/' read -r name_space name_tag <<< "$image"
-          IFS=':' read -r image_name image_tag <<< "$name_tag"
-          old_image_tag="$name_space/$image_name:$image_tag"
-          new_image_tag="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$image_name:$image_tag"
-          echo "old_image_tag: $old_image_tag"
-          echo "new_image_tag: $new_image_tag"
-          docker pull $old_image_tag
-          docker tag $old_image_tag $new_image_tag
-          docker push $new_image_tag
-          docker rmi $old_image_tag $new_image_tag        
+          IFS='/' read -r NAME_SPACE NAME_TAG <<< "$IMAGE"
+          IFS=':' read -r IMAGE_NAME IMAGE_TAG <<< "$NAME_TAG"
+          OLD_IMAGE_TAG="$NAME_SPACE/$IMAGE_NAME:$IMAGE_TAG"
+          NEW_IMAGE_TAG="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$IMAGE_NAME:$IMAGE_TAG"
+          echo "OLD_IMAGE_TAG: $OLD_IMAGE_TAG"
+          echo "NEW_IMAGE_TAG: $NEW_IMAGE_TAG"
+          docker pull $OLD_IMAGE_TAG
+          docker tag $OLD_IMAGE_TAG $NEW_IMAGE_TAG
+          docker push $NEW_IMAGE_TAG
+          docker rmi $OLD_IMAGE_TAG $NEW_IMAGE_TAG        
         done
+
