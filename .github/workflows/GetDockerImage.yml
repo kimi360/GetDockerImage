@@ -42,13 +42,20 @@ jobs:
         df -hT
         echo "=============================================================================="        
 
-    - name: Pull and push images
+    - name: Login Aliyun
       run: |
         docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
+
+    - name: Pull and push images
+      run: |
         for image in $IMAGE_LIST; do
-          echo $image
+          echo "image item: "$image
           IFS='/' read -r name_space name_tag <<< "$image"
+          echo "namespace: "$name_space
+          echo "name_tag: "$name_tag
           IFS=':' read -r image_name image_tag <<< "$name_tag"
+          echo "image_name: "$image_name
+          echo "image_tag: "$image_tag
           old_image_tag="$name_space/$image_name:$image_tag"
           new_image_tag="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$image_name:$image_tag"
           docker pull $old_image_tag
