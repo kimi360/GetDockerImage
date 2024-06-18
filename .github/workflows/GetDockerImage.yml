@@ -3,11 +3,11 @@ name: GetDockerImage
 on:
   workflow_dispatch: ~
   workflow_call:
-  inputs:
-    images:
-      description: 'List of Docker images to pull'
-      required: false
-      type: string
+    inputs:
+      images:
+        description: 'List of Docker images to pull'
+        required: false
+        type: string
 
 env:
   ALIYUN_REGISTRY: "${{ vars.ALIYUN_REGISTRY }}"
