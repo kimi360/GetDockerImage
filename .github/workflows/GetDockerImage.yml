@@ -8,7 +8,7 @@ env:
   ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
   ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
-  Image_List: "${{Image_List}}"
+  IMAGE_LIST: "${{IMAGE_LIST}}"
 
 jobs:
   build:
@@ -48,7 +48,7 @@ jobs:
 
     - name: Pull and push images
       run: |
-        for image in $Image_List; do
+        for image in $IMAGE_LIST; do
           IFS=':' read -r image_name image_tag <<< "$image"
           old_image_tag="$image_name:$image_tag"
           new_image_tag="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$image_name$image_tag"
