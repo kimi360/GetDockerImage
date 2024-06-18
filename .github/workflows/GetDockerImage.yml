@@ -2,13 +2,18 @@ name: GetDockerImage
 
 on:
   workflow_dispatch: ~
+  workflow_call:
+  inputs:
+    images:
+      description: 'List of Docker images to pull'
+      required: false
+      type: string
 
 env:
   ALIYUN_REGISTRY: "${{ vars.ALIYUN_REGISTRY }}"
   ALIYUN_NAME_SPACE: "${{ vars.ALIYUN_NAME_SPACE }}"
   ALIYUN_REGISTRY_USERNAME: "${{ secrets.ALIYUN_REGISTRY_USERNAME }}"
   ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
-  IMAGE_LIST: "${{ vars.IMAGE_LIST }}"
 
 jobs:
   build:
@@ -34,17 +39,23 @@ jobs:
 
     - name: Pull and push images
       run: |
-        for IMAGE in $IMAGE_LIST; do
-          IMAGE=$(echo "$IMAGE" | tr -d '\r' | xargs)
-          IFS='/' read -r NAME_SPACE NAME_TAG <<< "$IMAGE"
-          IFS=':' read -r IMAGE_NAME IMAGE_TAG <<< "$NAME_TAG"
-          OLD_IMAGE_TAG="$NAME_SPACE/$IMAGE_NAME:$IMAGE_TAG"
-          NEW_IMAGE_TAG="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$IMAGE_NAME:$IMAGE_TAG"
-          echo "OLD_IMAGE_TAG: $OLD_IMAGE_TAG"
-          echo "NEW_IMAGE_TAG: $NEW_IMAGE_TAG"
-          docker pull $OLD_IMAGE_TAG
-          docker tag $OLD_IMAGE_TAG $NEW_IMAGE_TAG
-          docker push $NEW_IMAGE_TAG
-          docker rmi $OLD_IMAGE_TAG $NEW_IMAGE_TAG        
-        done
+        if [ -n "${{ inputs.images }}" ]; then
+          IMAGE_LIST="${{ inputs.images }}"
+        else
+          IMAGE_LIST="${{ vars.IMAGE_LIST }}"
+        fi
 
+        for IMAGE in $IMAGE_LIST; do
+          # Trim whitespace and remove any hidden characters
+          IMAGE=$(echo "$IMAGE" | tr -d '\r' | xargs)
+          IMAGE_WITHOUT_NAMESPACE=$(echo "$IMAGE" | awk -F'/' '{print $NF}')
+          
+          OLD_IMAGE="$IMAGE"
+          NEW_IMAGE="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$IMAGE_WITHOUT_NAMESPACE"
+
+          echo -e "\e[1m=== $IMAGE ===\e[0m"
+          docker pull $OLD_IMAGE
+          docker tag $OLD_IMAGE $NEW_IMAGE
+          docker push $NEW_IMAGE
+          docker rmi $OLD_IMAGE $NEW_IMAGE        
+        done
