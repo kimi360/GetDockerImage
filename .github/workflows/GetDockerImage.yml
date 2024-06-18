@@ -1,0 +1,59 @@
+name: GetDockerImage
+
+on:
+  workflow_dispatch: ~
+
+env:
+  ALIYUN_REGISTRY: "${{ secrets.ALIYUN_REGISTRY }}"
+  ALIYUN_NAME_SPACE: "${{ secrets.ALIYUN_NAME_SPACE }}"
+  ALIYUN_REGISTRY_USER: "${{ secrets.ALIYUN_REGISTRY_USER }}"
+  ALIYUN_REGISTRY_PASSWORD: "${{ secrets.ALIYUN_REGISTRY_PASSWORD }}"
+  Image_List: "${{Image_List}}"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Show disk space before
+      run: |
+        echo "Before freeing up disk space"
+        echo "=============================================================================="
+        df -hT
+        echo "=============================================================================="
+        
+    - name: Maximize build space
+      uses: easimon/maximize-build-space@master
+      with:
+        root-reserve-mb: 2048
+        swap-size-mb: 128
+        remove-dotnet: 'true'
+        remove-haskell: 'true'
+        remove-android: 'true'
+        remove-codeql: 'true'
+        build-mount-path: '/var/lib/docker/'
+        
+    - name: Restart docker
+      run: sudo service docker restart
+
+    - name: Show disk space after
+      run: |
+        echo "Free up disk space complete"
+        echo "=============================================================================="
+        df -hT
+        echo "=============================================================================="
+        
+    - name: Build and push image Aliyun
+      run: |
+        docker login -u $ALIYUN_REGISTRY_USER -p $ALIYUN_REGISTRY_PASSWORD $ALIYUN_REGISTRY
+
+    - name: Pull and push images
+      run: |
+        for image in $Image_List; do
+          IFS=':' read -r image_name image_tag <<< "$image"
+          old_image_tag="$image_name:$image_tag"
+          new_image_tag="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$image_name$image_tag"
+          docker pull $old_image_tag
+          docker tag $old_image_tag $new_image_tag
+          docker push $new_image_tag
+          docker rmi $old_image_tag $new_image_tag        
+        done
