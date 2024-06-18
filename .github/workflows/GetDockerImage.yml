@@ -13,7 +13,7 @@ env:
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:        
+    steps:   
     - name: Maximize build space
       uses: easimon/maximize-build-space@master
       with:
@@ -34,8 +34,16 @@ jobs:
 
     - name: Pull and push images
       run: |
-        echo "$IMAGE_LIST" | while IFS= read -r IMAGE; do
+        for IMAGE in $IMAGE_LIST; do
           IMAGE=$(echo "$IMAGE" | tr -d '\r' | xargs)
-          echo "image item: $IMAGE"
-          docker pull "$IMAGE"
-        done 
+          IFS='/' read -r name_space name_tag <<< "$image"
+          IFS=':' read -r image_name image_tag <<< "$name_tag"
+          old_image_tag="$name_space/$image_name:$image_tag"
+          new_image_tag="$ALIYUN_REGISTRY/$ALIYUN_NAME_SPACE/$image_name:$image_tag"
+          echo "old_image_tag: $old_image_tag"
+          echo "new_image_tag: $new_image_tag"
+          docker pull $old_image_tag
+          docker tag $old_image_tag $new_image_tag
+          docker push $new_image_tag
+          docker rmi $old_image_tag $new_image_tag        
+        done
